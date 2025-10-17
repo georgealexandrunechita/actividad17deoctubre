@@ -34,29 +34,29 @@ app.post('/estudiantes', (req, res) => {
 });
 
 app.post('/estudiantes/:nombre/notas', (req, res) => {
-    const nombre = req.params.nombre;
-    const { nota } = req.body;
-
-    if (estudiantes.hasOwnProperty(nombre)) {
-        estudiantes[nombre].push(nota);
-        res.json({
-            mensaje: 'Nota añadida correctamente',
-            estudiante: { nombre, notas: estudiantes[nombre] }
-        });
-    } else {
-        res.status(404).json({ error: 'Estudiante no encontrado' });
-    }
+        const nombre = req.params.nombre;
+        const nota = Object.values(req.body)[0]
+        estudiantes= [nombre].push(nota);
+        res.send ("Nota añadida");
 });
 
 app.delete('/estudiantes/:nombre', (req, res) => {
     const nombre = req.params.nombre;
+    delete estudiantes[nombre];
+    res.send ("Estudiante eliminado");
+});
 
-    if (estudiantes.hasOwnProperty(nombre)) {
-        delete estudiantes[nombre];
-        res.json({ mensaje: `Estudiante ${nombre} eliminado correctamente` });
-    } else {
-        res.status(404).json({ error: 'Estudiante no encontrado' });
+app.get('/estudiantes/:nombre/media', (req, res) => {
+    const nombre = req.params.nombre;
+    const notas = estudiantes[nombre];
+    let suma = 0;
+
+    for (let i = 0; i < notas.length; i++) {
+        suma += notas[i];
     }
+
+    const media = suma / notas.length;
+    res.json({ nombre, media });
 });
 
 app.listen(8080, () => {
