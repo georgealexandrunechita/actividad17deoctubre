@@ -11,24 +11,54 @@ let estudiantes = {
 
 app.get('/estudiantes/:nombre/notas', (req, res) => {
     const nombre = req.params.nombre;
-    const notas = estudiantes[nombre];
 
-    if (!notas) {
-        return res.status(404).json({ error: 'Estudiante no encontrado' });
+    if (estudiantes.hasOwnProperty(nombre)) {
+        res.json({ nombre, notas: estudiantes[nombre] });
+    } else {
+        res.status(404).send('Estudiante no encontrado');
     }
-
-    res.json({ nombre: nombre, notas: notas });
 });
 
-app.post('estudiantes',  (req, res) => {
-    const { nombre, notas} = req.body;
+app.post('/estudiantes', (req, res) => {
+    const { nombre, notas } = req.body;
 
-    if (estudiantes[nombre]) {
-        return res.status(400)
+    if (estudiantes.hasOwnProperty(nombre)) {
+        res.status(400).json({ error: 'Estudiante ya existente' });
+    } else {
+        estudiantes[nombre] = notas;
+        res.json({
+            mensaje: 'Estudiante agregado correctamente',
+            estudiante: { nombre, notas }
+        });
     }
+});
 
-)
+app.post('/estudiantes/:nombre/notas', (req, res) => {
+    const nombre = req.params.nombre;
+    const { nota } = req.body;
+
+    if (estudiantes.hasOwnProperty(nombre)) {
+        estudiantes[nombre].push(nota);
+        res.json({
+            mensaje: 'Nota añadida correctamente',
+            estudiante: { nombre, notas: estudiantes[nombre] }
+        });
+    } else {
+        res.status(404).json({ error: 'Estudiante no encontrado' });
+    }
+});
+
+app.delete('/estudiantes/:nombre', (req, res) => {
+    const nombre = req.params.nombre;
+
+    if (estudiantes.hasOwnProperty(nombre)) {
+        delete estudiantes[nombre];
+        res.json({ mensaje: `Estudiante ${nombre} eliminado correctamente` });
+    } else {
+        res.status(404).json({ error: 'Estudiante no encontrado' });
+    }
+});
 
 app.listen(8080, () => {
-    console.log('Servidor arrancado en http://localhost:8080');
+    console.log('Servidor arrancado');
 });
